@@ -4,7 +4,6 @@ import yfinance
 import pandas as pd
 import numpy as np
 import mplfinance
-import matplotlib.dates as mpl_dates
 from datetime import datetime, timedelta
 
 TOKEN = '5487092264:AAHcqAcf3q31Z0Dn35-o2FUfGpYQfYDdzvI'
