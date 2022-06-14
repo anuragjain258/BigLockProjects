@@ -224,7 +224,6 @@ disp.add_handler(bot.CommandHandler("option", choosefromhelp))
 disp.add_handler(bot.CommandHandler("indstock", getsupportandresist_ind))
 disp.add_handler(bot.CommandHandler("usstock", getsupportandresist_us))
 disp.add_handler(bot.CommandHandler("breakout" , breakoutstock_ind))
-disp.add_error_handler()
 
 updater.start_polling()
 updater.idle()
