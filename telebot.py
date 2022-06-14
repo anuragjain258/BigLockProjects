@@ -172,9 +172,7 @@ def getsupportandresist_us(update, context):
 
 #get the breakout for the stock
 def breakoutstock_ind(update , context):
-
-
-
+    update.message.reply_text("Working on this thing!!")
 
     """if (current_price < int(firsup) and current_price < int(secondsup) and current_price < int(thirdsup)) :
         update.message.reply_text(f"BreakOut Done From Suport Side \n Current Price of Stock {current_price:.2f}")
@@ -225,7 +223,8 @@ disp.add_handler(bot.CommandHandler("help", Help))
 disp.add_handler(bot.CommandHandler("option", choosefromhelp))
 disp.add_handler(bot.CommandHandler("indstock", getsupportandresist_ind))
 disp.add_handler(bot.CommandHandler("usstock", getsupportandresist_us))
-disp.add_handler(bot.CommandHandler("breakout" , breakoutstock ))
+disp.add_handler(bot.CommandHandler("breakout" , breakoutstock_ind))
+disp.add_error_handler()
 
 updater.start_polling()
 updater.idle()
