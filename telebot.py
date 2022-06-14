@@ -4,14 +4,25 @@ import yfinance
 import pandas as pd
 import numpy as np
 import mplfinance
+import time
 from datetime import datetime, timedelta
 
 TOKEN = '5487092264:AAHcqAcf3q31Z0Dn35-o2FUfGpYQfYDdzvI'
 is_bot_started = False
 is_user_login = False
 MAX = 100000
+nse_symbol = ".NS"
+is_breakout_started = False
+
 lst_interval = ['1m', '2m', '5m', '15m', '30m', '60m',
                 '90m', '1h', '1d', '5d', '1wk', '1mo', '3mo']
+
+
+#get the current price of the stock
+def get_current_price(symbol):
+    ticker = yfinance.Ticker(symbol)
+    todays_data = ticker.history(period='1d')
+    return todays_data['Close'][0]
 
 
 # start command
@@ -41,22 +52,18 @@ def user(update, context):
         update.message.reply_text("Command Already Executed")
 
 # help command
-
-
 def Help(update, context):
     update.message.reply_text("""
 
                 `OUR SERVICES`
 
             1. Find Support & Resistance For the Stock.
-                || Rules ||
-                || Use /stock + stockname(capital) + days + interval ||
-
             2. Find Breakout of the stock.
 
+            Use /option to make a choice..
         """)
 
-
+#taking the min 3 support ans resistance
 def get_min_3(df, lenght):
 
     firstmin = MAX
@@ -89,10 +96,47 @@ def get_min_3(df, lenght):
             thirdmin = arr[i]
     return firstmin, secmin, thirdmin
 
-# getting the support and resistance for the stock
 
+#invalid stock - faltu name , nse belong
+#                             .ns
+# getting the support and resistance for the indian stock
+def getsupportandresist_ind(update, context):
+    global nse_symbol
+    stock_name = context.args[0]
+    days = context.args[1]
+    interval = context.args[2]
+    global lst_interval
 
-def getsupportandresist(update, context):
+    ticker_symbol = stock_name + nse_symbol
+    ticker = yfinance.Ticker(ticker_symbol)
+
+    if (ticker.info['regularMarketPrice'] == None):
+        update.message.reply_text("Invalid Stock !!")
+
+    elif (interval not in lst_interval):
+        update.message.reply_text(
+            f"Invalid Interval!! \n Valid Interval are {lst_interval}")
+    else:
+        start_date = datetime.now() - \
+            timedelta(days=int(days))
+        end_date = datetime.now()
+
+        df = ticker.history(interval=interval, start=start_date, end=end_date)
+
+        df['Date'] = pd.to_datetime(df.index)
+        #[12 ,10 ,13,26] [10,12,13,26]
+        #df['Date'] = df['Date'].apply(mpl_dates.date2num)
+        df = df.loc[:, ['Date', 'Open', 'High', 'Low', 'Close']]
+
+        firsup, secondsup, thirdsup = get_min_3(df['Low'], len(df['Low']))
+        firres, secondres, thirdres = get_min_3(df['High'], len(df['High']))
+
+        update.message.reply_text(
+            f"Supports For the Current Stock \n {firsup:.2f} \n {secondsup:.2f} \n {thirdsup:.2f} \n\n Resistance For the Current Stock \n {firres:.2f} \n {secondres:.2f} \n {thirdres:.2f}")
+
+# getting the support and resistance for the us stock
+def getsupportandresist_us(update, context):
+    global firres, secondres, thirdres, firsup , secondsup , thirdsup ,nse_symbol
     stock_name = context.args[0]
     days = context.args[1]
     interval = context.args[2]
@@ -126,14 +170,62 @@ def getsupportandresist(update, context):
             f"Supports For the Current Stock \n {firsup:.2f} \n {secondsup:.2f} \n {thirdsup:.2f} \n\n Resistance For the Current Stock \n {firres:.2f} \n {secondres:.2f} \n {thirdres:.2f}")
 
 
+#get the breakout for the stock
+def breakoutstock_ind(update , context):
+
+
+
+
+    """if (current_price < int(firsup) and current_price < int(secondsup) and current_price < int(thirdsup)) :
+        update.message.reply_text(f"BreakOut Done From Suport Side \n Current Price of Stock {current_price:.2f}")
+    elif (current_price > int(firres) and current_price > int(secondres) and current_price > int(thirdres)) :
+        update.message.reply_text(f"Breakout Done From Resistance Side \n Current Price of Stock {current_price:.2f}")
+    else :
+        update.message.reply_text(f"I will notify you  \n Current Price of Stock {current_price:.2f}")"""
+
+
+# option for the stock
+def choosefromhelp(update , context):
+
+    user_option = context.args[0]
+    if (user_option == '1') :
+        update.message.reply_text("You Choose Support & Resistance")
+        time.sleep(1)
+        update.message.reply_text("""
+            Rules To Follow
+
+
+            For Indian Stocks
+            Use /indstock + stockname + days + interval
+
+            For Us Stocks
+            Use /usstock + stockname + days + interval
+         """)
+    elif (user_option == '2') :
+        update.message.reply_text("You Choose breakout")
+        time.sleep(1)
+        update.message.reply_text("""
+            Rules To Follow
+
+            For Indian Stocks
+            Use /indbreakout + stockname
+         """)
+
+    else:
+        update.message.reply_text("Wrong Option Try Again !! ")
+
+
+
 updater = bot.Updater(TOKEN, use_context=True)
 disp = updater.dispatcher
 
 disp.add_handler(bot.CommandHandler("start", start))
 disp.add_handler(bot.CommandHandler("user", user))
 disp.add_handler(bot.CommandHandler("help", Help))
-disp.add_handler(bot.CommandHandler("stock", getsupportandresist))
-
+disp.add_handler(bot.CommandHandler("option", choosefromhelp))
+disp.add_handler(bot.CommandHandler("indstock", getsupportandresist_ind))
+disp.add_handler(bot.CommandHandler("usstock", getsupportandresist_us))
+disp.add_handler(bot.CommandHandler("breakout" , breakoutstock ))
 
 updater.start_polling()
 updater.idle()
