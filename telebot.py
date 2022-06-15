@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 import mplfinance
 import time
+import logging
 from datetime import datetime, timedelta
 
 TOKEN = '5487092264:AAHcqAcf3q31Z0Dn35-o2FUfGpYQfYDdzvI'
@@ -215,19 +216,21 @@ def choosefromhelp(update , context):
 
 #handle the text message without the slash
 def handlemessage(update, context) :
-    text = update.messsage.text
+    text = update.message.text
     update.message.reply_text("Invalid Command \n Use /help to know more.")
 
 
 #for handling all the error related to the bot
 def error(update , context) :
-    update.message.reply_text(f"Error Cause by {context.error}")
+    logging.error(f"Error Caused By {context.error}")
 
 
 
 
 updater = bot.Updater(TOKEN, use_context=True)
 disp = updater.dispatcher
+
+
 
 disp.add_handler(bot.CommandHandler("start", start))
 disp.add_handler(bot.CommandHandler("user", user))
@@ -236,7 +239,7 @@ disp.add_handler(bot.CommandHandler("option", choosefromhelp))
 disp.add_handler(bot.CommandHandler("indstock", getsupportandresist_ind))
 disp.add_handler(bot.CommandHandler("usstock", getsupportandresist_us))
 disp.add_handler(bot.CommandHandler("breakout" , breakoutstock_ind))
-disp.add_handler(bot.MessageHandler(Filters.text, handlemessage))
+disp.add_handler(bot.MessageHandler(bot.Filters.text, handlemessage))
 disp.add_error_handler(error)
 
 updater.start_polling()
