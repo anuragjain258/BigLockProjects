@@ -213,6 +213,18 @@ def choosefromhelp(update , context):
         update.message.reply_text("Wrong Option Try Again !! ")
 
 
+#handle the text message without the slash
+def handlemessage(update, context) :
+    text = update.messsage.text
+    update.message.reply_text("Invalid Command \n Use /help to know more.")
+
+
+#for handling all the error related to the bot
+def error(update , context) :
+    update.message.reply_text(f"Error Cause by {context.error}")
+
+
+
 
 updater = bot.Updater(TOKEN, use_context=True)
 disp = updater.dispatcher
@@ -224,6 +236,8 @@ disp.add_handler(bot.CommandHandler("option", choosefromhelp))
 disp.add_handler(bot.CommandHandler("indstock", getsupportandresist_ind))
 disp.add_handler(bot.CommandHandler("usstock", getsupportandresist_us))
 disp.add_handler(bot.CommandHandler("breakout" , breakoutstock_ind))
+disp.add_handler(bot.MessageHandler(Filters.text, handlemessage))
+disp.add_error_handler(error)
 
 updater.start_polling()
 updater.idle()
