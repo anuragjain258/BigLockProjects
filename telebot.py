@@ -189,7 +189,7 @@ def choosefromhelp(update, context):
         update.message.reply_text("""
             Rules To Follow
 
-            Use /option + stockname + days + interval
+            Use /breakout + stockname + days + interval
          """)
 
     else:
