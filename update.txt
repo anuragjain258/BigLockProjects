@@ -1,0 +1,6 @@
+TO DO TASK -:
+
+       1. Formatting the Changes
+       2. Alert System (RUN ONE TIME ONLY)
+            2.a Function Input - StockName , Price_target
+            2.b Function Output - 5 Message with alert sound that the price is reached
