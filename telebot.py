@@ -180,7 +180,7 @@ def choosefromhelp(update, context):
         update.message.reply_text("""
             Rules To Follow
             
-            Use stock + stockname + days + interval
+            Use /stock + stockname + days + interval
 
          """)
     elif user_option == '2':
@@ -189,7 +189,7 @@ def choosefromhelp(update, context):
         update.message.reply_text("""
             Rules To Follow
 
-            Use stock + stockname + days + interval
+            Use /option + stockname + days + interval
          """)
 
     else:
