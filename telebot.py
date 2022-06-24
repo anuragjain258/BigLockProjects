@@ -1,9 +1,7 @@
 import telegram.ext as bot
 import yfinance
 import pandas as pd
-import numpy as np
-import mplfinance
-import time
+from time import time,sleep
 import logging
 from datetime import datetime, timedelta
 
@@ -15,10 +13,14 @@ nse_symbol = ".NS"
 is_breakout_started = False
 user_option = 0
 
+
+
 lst_interval = ['1m', '2m', '5m', '15m', '30m', '60m',
                 '90m', '1h', '1d', '5d', '1wk', '1mo', '3mo']
 
 
+
+#function to get minimum no. 3
 def get_min_3(df, lenght):
     firstmin = MAX
     secmin = MAX
@@ -27,25 +29,15 @@ def get_min_3(df, lenght):
     arr = df
     for i in range(0, n):
 
-        # Check if current element
-        # is less than firstmin,
-        # then update first,second
-        # and third
-
         if arr[i] < firstmin:
             thirdmin = secmin
             secmin = firstmin
             firstmin = arr[i]
 
-        # Check if current element is
-        # less than secmin then update
-        # second and third
         elif arr[i] < secmin:
             thirdmin = secmin
             secmin = arr[i]
 
-        # Check if current element is
-        # less than,then update third
         elif arr[i] < thirdmin:
             thirdmin = arr[i]
 
@@ -54,15 +46,16 @@ def get_min_3(df, lenght):
     thirdmin = f"{thirdmin:.2f}"
     return firstmin, secmin, thirdmin
 
-#function to calculate the support and resistance
-def findsupportandresistance(stock_name , days , interval) :
+
+# function to calculate the support and resistance
+def findsupportandresistance(stock_name, days, interval):
     ticker_symbol = stock_name + nse_symbol
     ticker = yfinance.Ticker(ticker_symbol)
 
-    if (ticker.info['regularMarketPrice'] == None):
+    if ticker.info['regularMarketPrice'] is None:
         return "Invalid Stock !!"
 
-    elif (interval not in lst_interval):
+    elif interval not in lst_interval:
         return f"Invalid Interval!! \n Valid Interval are {lst_interval}"
     else:
         start_date = datetime.now() - \
@@ -81,13 +74,13 @@ def findsupportandresistance(stock_name , days , interval) :
 
         print(f"Support {firsup}")
 
-        return firsup , secondsup,thirdsup ,firres , secondres , thirdres
+        return firsup, secondsup, thirdsup, firres, secondres, thirdres
 
 
 # get the current price of the stock
 def get_current_price(symbol):
     global nse_symbol
-    ticker = yfinance.Ticker(symbol+nse_symbol)
+    ticker = yfinance.Ticker(symbol + nse_symbol)
     todays_data = ticker.history(period='1d')
     print(todays_data)
     price = f"{todays_data['Close'][0]:.2f}"
@@ -95,10 +88,22 @@ def get_current_price(symbol):
     return int(float(price))
 
 
+def live_current_price(stock_name):
+    i = 1
+    while i==1:
+        global nse_symbol
+        ticker = yfinance.Ticker(stock_name + nse_symbol)
+        todays_data = ticker.history(period='1d')
+        price = f"{todays_data['Close'][0]:.2f}"
+        print(f"Updated Price of Stock {int(float(price))}")
+        return int(float(price))
+        sleep(60)
+
+
 # start command
 def start(update, context):
     global is_bot_started
-    if is_bot_started != True:
+    if not is_bot_started:
         update.message.reply_text(
             "Welcome to the bot 😁 \n Use /help to know more about me 😊")
         is_bot_started = True
@@ -111,7 +116,7 @@ def user(update, context):
     global is_user_login
     given_by_user = context.args[0]
     list_user = ['chetan', 'nithin', 'harvinder']
-    if is_user_login != True:
+    if not is_user_login:
         if given_by_user in list_user:
             update.message.reply_text(
                 "Welcome to the bot 😁 \n Use /help to know more about me 😊")
@@ -130,13 +135,13 @@ def Help(update, context):
 
             1. Find Support & Resistance For the Stock.
             2. Find Breakout of the stock.
+            3. Price Alert System For the Stocks.
 
             Use /option with your choice number
         """)
 
 
 # taking the min 3 support ans resistance
-
 
 
 # invalid stock - faltu name , nse belong
@@ -149,9 +154,9 @@ def getsupportandresist_ind(update, context):
     interval = context.args[2]
     global lst_interval
 
-    firsup , secondsup , thirdsup , firres , secondres , thirdres = findsupportandresistance(stock_name ,days , interval)
+    firsup, secondsup, thirdsup, firres, secondres, thirdres = findsupportandresistance(stock_name, days, interval)
     update.message.reply_text(
-                f"Supports For the Current Stock \n {firsup} \n {secondsup} \n {thirdsup} \n\n Resistance For the Current Stock \n {firres} \n {secondres} \n {thirdres}")
+        f"Supports For the Current Stock \n {firsup} \n {secondsup} \n {thirdsup} \n\n Resistance For the Current Stock \n {firres} \n {secondres} \n {thirdres}")
 
 
 # get the breakout for the stock
@@ -162,10 +167,12 @@ def breakoutstock(update, context):
     interval = context.args[2]
     global lst_interval
     current_price = get_current_price(stock_name)
-    firsup , secondsup , thirdsup , firres, secondres ,thirdres = findsupportandresistance(stock_name , days , interval)
-    if current_price < int(float(firsup)) and current_price < int(float(secondsup)) and current_price < int(float(thirdsup)):
+    firsup, secondsup, thirdsup, firres, secondres, thirdres = findsupportandresistance(stock_name, days, interval)
+    if current_price < int(float(firsup)) and current_price < int(float(secondsup)) and current_price < int(
+            float(thirdsup)):
         update.message.reply_text(f"BreakOut Done From Suport Side \n Current Price of Stock {current_price:.2f}")
-    elif current_price > int(float(firres)) and current_price > int(float(secondres)) and current_price > int(float(thirdres)):
+    elif current_price > int(float(firres)) and current_price > int(float(secondres)) and current_price > int(
+            float(thirdres)):
         update.message.reply_text(f"Breakout Done From Resistance Side \n Current Price of Stock {current_price:.2f}")
     else:
         update.message.reply_text(f"I will notify you  \n Current Price of Stock {current_price:.2f}")
@@ -176,22 +183,29 @@ def choosefromhelp(update, context):
     user_option = context.args[0]
     if user_option == '1':
         update.message.reply_text("You Choose Support & Resistance")
-        time.sleep(1)
+        sleep(1)
         update.message.reply_text("""
             Rules To Follow
-            
+
             Use /stock + stockname + days + interval
 
          """)
     elif user_option == '2':
         update.message.reply_text("You Choose breakout")
-        time.sleep(1)
+        sleep(1)
         update.message.reply_text("""
             Rules To Follow
 
             Use /breakout + stockname + days + interval
          """)
+    elif user_option == '3':
+        update.message.reply_text("System Activating...")
+        sleep(1)
+        update.message.reply_text("""
+                    Rules To Follow
 
+                    Use /pricealert + stockname + price
+                 """)
     else:
         update.message.reply_text("Wrong Option Try Again !! ")
 
@@ -199,43 +213,42 @@ def choosefromhelp(update, context):
 # handle the text message without the slash
 def handlemessage(update, context):
     text = update.message.text
-    """if text == "start" or text == "Start":
-        start(update, context)
-    elif text == "help" or text == "Help":
-        Help(update, context)
-    elif text == "1" :
-        user_option = 1
-        time.sleep(1)
-        choosefromhelp(update , context)
-    elif text == "2" :
-        user_option = 2
-        time.sleep(1)
-        choosefromhelp(update , context)
-    elif text == "stock" :
-        update.message.reply_text("Enter the Stock Name !")
-        stock_name = update.message.text
-        time.sleep(2)
-        update.message.reply_text("Your stock name is ")"""
-
     update.message.reply_text("Invalid Command \n Use /help to know more.")
+
+
+# function for creating the price alert system
+def price_alert_system(update, context):
+    stock_name = context.args[0]
+    price = context.args[1]
+    update.message.reply_text("Alert System Activated.")
+    i = 1
+    while i == 1:
+        live_stock_price = live_current_price(stock_name)
+        if (price == live_stock_price) :
+            update.message.reply_text("Price Reached For Your Stock")
+        else :
+            sleep(60)
+
+
 
 
 # for handling all the error related to the bot
 def error(update, context):
     logging.error(f"Error Caused By {context.error}")
 
+if __name__ == '__main__':
+    updater = bot.Updater(TOKEN, use_context=True)
+    disp = updater.dispatcher
 
-updater = bot.Updater(TOKEN, use_context=True)
-disp = updater.dispatcher
+    disp.add_handler(bot.CommandHandler("start", start))
+    disp.add_handler(bot.CommandHandler("user", user))
+    disp.add_handler(bot.CommandHandler("help", Help))
+    disp.add_handler(bot.CommandHandler("option", choosefromhelp))
+    disp.add_handler(bot.CommandHandler("stock", getsupportandresist_ind))
+    disp.add_handler(bot.CommandHandler("breakout", breakoutstock))
+    disp.add_handler(bot.CommandHandler("pricealert", price_alert_system))
+    disp.add_handler(bot.MessageHandler(bot.Filters.text, handlemessage))
+    disp.add_error_handler(error)
 
-disp.add_handler(bot.CommandHandler("start", start))
-disp.add_handler(bot.CommandHandler("user", user))
-disp.add_handler(bot.CommandHandler("help", Help))
-disp.add_handler(bot.CommandHandler("option", choosefromhelp))
-disp.add_handler(bot.CommandHandler("stock", getsupportandresist_ind))
-disp.add_handler(bot.CommandHandler("breakout", breakoutstock))
-disp.add_handler(bot.MessageHandler(bot.Filters.text, handlemessage))
-disp.add_error_handler(error)
-
-updater.start_polling()
-updater.idle()
+    updater.start_polling()
+    updater.idle()
