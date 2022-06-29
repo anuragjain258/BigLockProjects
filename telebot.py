@@ -87,17 +87,17 @@ def get_current_price(symbol):
     print(f"Price {int(float(price))}")
     return int(float(price))
 
-
+#to get the live price of stock all the time
 def live_current_price(stock_name):
     i = 1
     while i==1:
         global nse_symbol
         ticker = yfinance.Ticker(stock_name + nse_symbol)
-        todays_data = ticker.history(period='1d')
+        todays_data = ticker.history(period='1m')
         price = f"{todays_data['Close'][0]:.2f}"
         print(f"Updated Price of Stock {int(float(price))}")
         return int(float(price))
-        sleep(60)
+        sleep(5)
 
 
 # start command
@@ -218,16 +218,30 @@ def handlemessage(update, context):
 
 # function for creating the price alert system
 def price_alert_system(update, context):
+    global nse_symbol
     stock_name = context.args[0]
     price = context.args[1]
-    update.message.reply_text("Alert System Activated.")
-    i = 1
-    while i == 1:
-        live_stock_price = live_current_price(stock_name)
-        if (price == live_stock_price) :
-            update.message.reply_text("Price Reached For Your Stock")
-        else :
-            sleep(60)
+    ticker_symbol = stock_name + nse_symbol
+    ticker = yfinance.Ticker(ticker_symbol)
+    price = int(price)
+    if ticker.info['regularMarketPrice'] is None:
+        update.message.reply_text("Wrong Stock Name")
+    elif  isinstance(price, int) == False :
+        update.message.reply_text("Wrong Price Given")
+    else :
+        update.message.reply_text("Alert System Activated.")
+        i = 1
+        while i == 1:
+            live_stock_price = live_current_price(stock_name)
+            print(f"The value inside the variable  {live_stock_price}")
+            if (price == live_stock_price) :
+                j=1
+                while j <= 5:
+                    update.message.reply_text(f"Price Reached For Your Stock {stock_name} \n Current Price of Stock {live_stock_price}")
+                    j+=1
+                break
+            else :
+                sleep(5)
 
 
 
