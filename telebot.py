@@ -238,6 +238,7 @@ def price_alert_system(update, context):
                 j=1
                 while j <= 5:
                     update.message.reply_text(f"Price Reached For Your Stock {stock_name} \n Current Price of Stock {live_stock_price}")
+                    sleep(2)
                     j+=1
                 break
             else :
