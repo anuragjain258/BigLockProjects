@@ -5,7 +5,7 @@ from time import time,sleep
 import logging
 from datetime import datetime, timedelta
 
-TOKEN = '5487092264:AAHcqAcf3q31Z0Dn35-o2FUfGpYQfYDdzvI'
+TOKEN = '5713356355:AAEMKTnVgsHx27KjqOMeSQcm4dRR72cLdmg'
 is_bot_started = False
 is_user_login = False
 MAX = 100000
